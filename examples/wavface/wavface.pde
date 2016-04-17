@@ -38,7 +38,7 @@
 #include <WaveUtil.h>
 
 // These WAV files should be in the root level of the SD card:
-PROGMEM char
+static const char PROGMEM
   wav0[]     = "beware_i.wav",
   wav1[]     = "ihunger.wav",
   wav2[]     = "run_cowd.wav",
@@ -63,16 +63,18 @@ WaveHC    wave; // A single wave object -- only one sound is played at a time
 #define MATRIX_MOUTH_LEFT   1
 #define MATRIX_MOUTH_MIDDLE 2
 #define MATRIX_MOUTH_RIGHT  3
-Adafruit_8x8matrix matrix[4]; // Array of Adafruit_8x8matrix objects
+Adafruit_8x8matrix matrix[4] = { // Array of Adafruit_8x8matrix objects
+  Adafruit_8x8matrix(), Adafruit_8x8matrix(),
+  Adafruit_8x8matrix(), Adafruit_8x8matrix() };
 
 // Rather than assigning matrix addresses sequentially in a loop, each
 // has a spot in this array.  This makes it easier if you inadvertently
 // install one or more matrices in the wrong physical position --
 // re-order the addresses in this table and you can still refer to
 // matrices by index above, no other code or wiring needs to change.
-const uint8_t PROGMEM matrixAddr[] = { 0x70, 0x71, 0x72, 0x73 };
+static const uint8_t PROGMEM matrixAddr[] = { 0x70, 0x71, 0x72, 0x73 };
 
-const uint8_t PROGMEM // Bitmaps are stored in program memory
+static const uint8_t PROGMEM // Bitmaps are stored in program memory
   blinkImg[][8] = {    // Eye animation frames
   { B00111100,         // Fully open eye
     B01111110,
@@ -172,7 +174,7 @@ const uint8_t PROGMEM // Bitmaps are stored in program memory
 // just as animators do it.  Further explanation here:
 // http://www.idleworm.com/how/anm/03t/talk1.shtml
 
-const uint8_t PROGMEM
+static const uint8_t PROGMEM
   seq1[]  = { 0, 2,   2, 5,   5, 3,   3, 7, // "Beware, I live!"
               4, 5,   3, 4,   2, 5,   4, 3,
               3, 4,   1, 5,   3, 5,    255 },
@@ -216,10 +218,11 @@ void setup() {
   // Seed random number generator from an unused analog input:
   randomSeed(analogRead(A0));
 
-  // Instantiate and initialize each matrix object:
+  // Initialize each matrix object:
   for(uint8_t i=0; i<4; i++) {
-    matrix[i] = Adafruit_8x8matrix();
     matrix[i].begin(pgm_read_byte(&matrixAddr[i]));
+    // If using 'small' (1.2") displays vs. 'mini' (0.8"), enable this:
+    // matrix[i].setRotation(3);
   }
 
   // Enable pull-up resistors on three button inputs.

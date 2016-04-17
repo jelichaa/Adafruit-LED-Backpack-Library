@@ -15,8 +15,10 @@
   products from Adafruit!
 
   Written by Limor Fried/Ladyada for Adafruit Industries.  
-  BSD license, all text above must be included in any redistribution
+  MIT license, all text above must be included in any redistribution
  ****************************************************/
+#ifndef Adafruit_LEDBackpack_h
+#define Adafruit_LEDBackpack_h
 
 #if (ARDUINO >= 100)
  #include "Arduino.h"
@@ -24,7 +26,9 @@
  #include "WProgram.h"
 #endif
 
-#include "Wire.h"
+
+ #include <Wire.h>
+
 #include "Adafruit_GFX.h"
 
 #define LED_ON 1
@@ -43,7 +47,7 @@
 #define HT16K33_BLINK_1HZ  2
 #define HT16K33_BLINK_HALFHZ  3
 
-#define HT16K33_CMD_BRIGHTNESS 0x0E
+#define HT16K33_CMD_BRIGHTNESS 0xE0
 
 #define SEVENSEG_DIGITS 5
 
@@ -61,8 +65,39 @@ class Adafruit_LEDBackpack {
   uint16_t displaybuffer[8]; 
 
   void init(uint8_t a);
- private:
+ protected:
   uint8_t i2c_addr;
+};
+
+class Adafruit_AlphaNum4 : public Adafruit_LEDBackpack {
+ public:
+  Adafruit_AlphaNum4(void);
+
+  void writeDigitRaw(uint8_t n, uint16_t bitmask);
+  void writeDigitAscii(uint8_t n, uint8_t ascii, boolean dot = false);
+
+ private:
+
+
+};
+
+class Adafruit_24bargraph : public Adafruit_LEDBackpack {
+ public:
+  Adafruit_24bargraph(void);
+
+  void setBar(uint8_t bar, uint8_t color);
+
+ private:
+};
+
+
+class Adafruit_8x16matrix : public Adafruit_LEDBackpack, public Adafruit_GFX {
+ public:
+  Adafruit_8x16matrix(void);
+
+  void drawPixel(int16_t x, int16_t y, uint16_t color);
+
+ private:
 };
 
 class Adafruit_8x8matrix : public Adafruit_LEDBackpack, public Adafruit_GFX {
@@ -118,6 +153,10 @@ class Adafruit_7segment : public Adafruit_LEDBackpack {
   void printFloat(double, uint8_t = 2, uint8_t = DEC);
   void printError(void);
 
+  void writeColon(void);
+    
  private:
   uint8_t position;
 };
+#endif // Adafruit_LEDBackpack_h
+
